@@ -5,7 +5,7 @@ setup(
     name="vagen",
     version="0.1.0",
     packages=find_packages(),
-    python_requires='>=3.10',
+    python_requires='>=3.9',
     author="RAGEN-AI",
     description="A Python package for vagen",
     long_description=open("README.md", "r").read() if os.path.exists("README.md") else "",

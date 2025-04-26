@@ -10,8 +10,7 @@ Rules:
 1. Avoid falling into holes (O).
 2. Frozen tiles are slippery, you may move perpendicular to your intended direction.
 
-Actions you can take: Left, Down, Right, Up. 
-You can take up to {max_actions_per_step} action(s) at a time, separated by {action_sep}.
+Actions you can take: Left, Down, Right, Up. You can take up to {max_actions_per_step} action(s) at a time.
 Left: move left to the cell to the left.
 Down: move down to the cell below.
 Right: move right to the cell to the right.
@@ -38,8 +37,7 @@ Rules:
 1. Avoid falling into holes.
 2. Frozen tiles are slippery, you may move perpendicular to your intended direction.
 
-Actions you can take: Left, Down, Right, Up. 
-You can take up to {max_actions_per_step} action(s) at a time, separated by {action_sep}.
+Actions you can take: Left, Down, Right, Up. You can take up to {max_actions_per_step} action(s) at a time.
 
 Rewards:
 Fall into hole: 0

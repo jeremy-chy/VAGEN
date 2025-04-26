@@ -6,6 +6,7 @@ from vagen.env.svg.env import SVGEnv
 from vagen.env.svg.env_config import SvgEnvConfig
 from vagen.server.serial import serialize_observation, serialize_step_result
 from vagen.env.svg.score import calculate_total_score, calculate_total_score_batch
+from vagen.env.svg.dino import get_dino_model
 from vagen.env.svg.svg_utils import process_and_rasterize_svg, is_valid_svg
 from vagen.env.utils.context_utils import parse_llm_raw_response, convert_numpy_to_PIL
 from .service_config import SVGServiceConfig
@@ -35,13 +36,19 @@ class SVGService(BaseService):
         # This allows all environments to share the same model instance
         self.model_size = self.config.model_size
         self.dino_model = None  # Will be loaded on first use
-
-        # Add DreamSim model support
-        self.dreamsim_model = None  # Will be loaded on first use if enabled
         
         # Store device for model inference
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         print(f"SVGService initialized with {self.max_workers} workers, model_size={self.model_size}, device={self.device}")
+    
+    def _get_dino_model(self):
+        """
+        Get or initialize the DINO model.
+        Uses lazy loading to avoid loading the model until needed.
+        """
+        if self.dino_model is None:
+            self.dino_model = get_dino_model(self.model_size, self.device)
+        return self.dino_model
     
     def create_environments_batch(self, ids2configs: Dict[Any, Any]) -> None:
         """
@@ -172,10 +179,12 @@ class SVGService(BaseService):
         
         # Step 3: Batch process scores if there are valid images
         if valid_env_ids:
-
+            # Get DINO model
+            dino_model = self._get_dino_model()
+            
             # Calculate all scores at once
             batch_results = calculate_total_score_batch(
-                gt_images, gen_images, gt_codes, gen_codes, score_configs
+                gt_images, gen_images, gt_codes, gen_codes, score_configs, dino_model
             )
             
             # Process results directly using the index mapping
@@ -190,8 +199,6 @@ class SVGService(BaseService):
                 
                 # Update metrics and prepare info
                 result["metrics"]["turn_metrics"]["action_is_effective"] = scores["total_score"] > 0
-                result["metrics"]["turn_metrics"]["dino_score"] = scores["dino_score"]
-                result["metrics"]["turn_metrics"]["dreamsim_score"] = scores["dreamsim_score"]
                 info = result["rst"].copy()
                 info["scores"] = scores
                 info["metrics"] = result["metrics"]
@@ -415,8 +422,6 @@ class SVGService(BaseService):
                         "action_is_valid": rst['actions'] != [],  # Action exists
                         "svg_is_valid": svg_is_valid,  # SVG syntax is valid
                         "action_is_effective": False,
-                        "dino_score": 0.0,
-                        "dreamsim_score": 0.0,
                     },
                     "traj_metrics": {
                         "success": False,

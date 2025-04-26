@@ -1,19 +1,19 @@
-from .sokoban import SokobanEnv,SokobanEnvConfig
-from .frozenlake import FrozenLakeEnv,FrozenLakeEnvConfig, FrozenLakeService
+# from .sokoban import SokobanEnv,SokobanEnvConfig
+# from .frozenlake import FrozenLakeEnv,FrozenLakeEnvConfig, FrozenLakeService
 # from .navigation import NavigationEnv, NavigationEnvConfig, NavigationServiceConfig, NavigationService
-# from .svg import SVGEnv, SvgEnvConfig, SVGService, SVGServiceConfig
-# from .primitive_skill import PrimitiveSkillEnv, PrimitiveSkillEnvConfig, PrimitiveSkillService, PrimitiveSkillServiceConfig
+# from .svg import SVGEnv, SvgEnvConfig, SVGService
+from .Embench_new import AlfredEnv, AlfredService
 
 REGISTERED_ENV = {
-    "sokoban": {
-        "env_cls": SokobanEnv,
-        "config_cls": SokobanEnvConfig,
-    },
-    "frozenlake": {
-        "env_cls": FrozenLakeEnv,
-        "config_cls": FrozenLakeEnvConfig,
-        "service_cls": FrozenLakeService
-    },
+    # "sokoban": {
+    #     "env_cls": SokobanEnv,
+    #     "config_cls": SokobanEnvConfig,
+    # },
+    # "frozenlake": {
+    #     "env_cls": FrozenLakeEnv,
+    #     "config_cls": FrozenLakeEnvConfig,
+    #     "service_cls": FrozenLakeService
+    # },
     # "navigation": {
     #     "env_cls": NavigationEnv,
     #     "config_cls": NavigationEnvConfig,
@@ -23,13 +23,10 @@ REGISTERED_ENV = {
     # "svg": {
     #     "env_cls": SVGEnv,
     #     "config_cls": SvgEnvConfig,
-    #     "service_cls": SVGService,
-    #     "service_config_cls": SVGServiceConfig
+    #     "service_cls": SVGService
     # },
-    # "primitive_skill": {
-    #     "env_cls": PrimitiveSkillEnv,
-    #     "config_cls": PrimitiveSkillEnvConfig,
-    #     "service_cls": PrimitiveSkillService,
-    #     "service_config_cls": PrimitiveSkillServiceConfig
-    # }
+    "alfred": {
+        "env_cls": AlfredEnv,
+        "service_cls": AlfredService
+    }
 }

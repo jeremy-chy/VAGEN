@@ -347,15 +347,13 @@ class NavigationEnv(BaseEnv):
         Returns:
             System prompt string
         """
-        if self.config.render_mode == "vision":
+        if self.config.visual_env:
             return system_prompt_vision.format(
-                max_actions_per_step=self.config.max_actions_per_step,
-                action_sep=self.config.action_sep
+                max_actions_per_step=self.config.max_actions_per_step
             )
         else:
             return system_prompt_text.format(
-                max_actions_per_step=self.config.max_actions_per_step,
-                action_sep=self.config.action_sep
+                max_actions_per_step=self.config.max_actions_per_step
             )
     
     def compute_reward(self):

@@ -63,8 +63,10 @@ def create_dataset_from_yaml(yaml_file_path: str, force_gen=False,seed=42,train_
         custom_env_config = value.get('env_config', {})
         train_size,test_size = (value.get('train_size', 100), value.get('test_size', 100))
         env_size = train_size + test_size
-        
-        env_config = REGISTERED_ENV[env_name]["config_cls"](**custom_env_config)
+        if REGISTERED_ENV[env_name].get("config_cls") is not None:
+            env_config = REGISTERED_ENV[env_name]["config_cls"](**custom_env_config)
+        else:
+            env_config = {}
         seeds_for_env = None
         if hasattr(env_config, 'generate_seeds'):
             seeds_for_env = env_config.generate_seeds(env_size)
@@ -139,12 +141,18 @@ if __name__ == "__main__":
     for i in range(2):
         print(train_dataset[i])
         env_name = train_dataset[i]["extra_info"]["env_name"]
-        env_config_cls = REGISTERED_ENV[env_name]["config_cls"]
-        env_config= env_config_cls(**train_dataset[i]["extra_info"]["env_config"])
-        print(env_config.config_id())
+        if REGISTERED_ENV[env_name].get("config_cls") is not None:
+            env_config_cls = REGISTERED_ENV[env_name]["config_cls"]
+            env_config= env_config_cls(**train_dataset[i]["extra_info"]["env_config"])
+            print(env_config.config_id())
+        else:
+            env_config = {}
     for i in range(2):
         print(train_dataset[i])
         env_name = test_dataset[i]["extra_info"]["env_name"]
-        env_config_cls = REGISTERED_ENV[env_name]["config_cls"]
-        env_config= env_config_cls(**test_dataset[i]["extra_info"]["env_config"])
-        print(env_config.config_id())
+        if REGISTERED_ENV[env_name].get("config_cls") is not None:
+            env_config_cls = REGISTERED_ENV[env_name]["config_cls"]
+            env_config= env_config_cls(**test_dataset[i]["extra_info"]["env_config"])
+            print(env_config.config_id())
+        else:
+            env_config = {}

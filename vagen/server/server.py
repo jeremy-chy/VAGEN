@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask.json import JSONEncoder
 import threading
 import time
 import importlib
@@ -8,6 +9,16 @@ from vagen.env.base.base_service import BaseService
 from vagen.env.base.base_service_config import BaseServiceConfig
 import hydra
 from omegaconf import DictConfig
+import os, sys
+import numpy as np
+
+class NumpyEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            # Convert the array to a (nested) Python list
+            return obj.tolist()
+        # Let the base class default method raise the TypeError
+        return super().default(obj)
 
 class BatchEnvServer:
     """
@@ -38,6 +49,7 @@ class BatchEnvServer:
         
         # Create Flask app
         self.app = Flask(__name__)
+        self.app.json_encoder = NumpyEncoder
         self._setup_routes()
         
         # Server state
@@ -214,6 +226,8 @@ class BatchEnvServer:
             Tuple of (service, environment_type)
         """
         if env_id not in self.env_to_service:
+            print(f"env_to_service: {self.env_to_service}")
+            print(f"env_id: {env_id}")
             raise ValueError(f"Environment {env_id} not found")
             
         env_name = self.env_to_service[env_id]
@@ -278,7 +292,6 @@ class BatchEnvServer:
         for env_name, (service, group_ids2seeds) in service_groups.items():
             service_results = service.reset_batch(group_ids2seeds)
             results.update(service_results)
-        
         return results
     
     def _step_batch(self, ids2actions: Dict[str, Any]) -> Dict[str, Tuple[Dict, float, bool, Dict]]:
@@ -426,11 +439,10 @@ class BatchEnvServer:
     def _run_server(self) -> None:
         """Run the Flask server"""
         self.app.run(host=self.host, port=self.port, debug=self.debug, use_reloader=False)
-    
-    def stop(self) -> None:
-        """Stop the server and clean up resources"""
-        if not self.is_running:
-            return
+        def stop(self) -> None:
+            """Stop the server and clean up resources"""
+            if not self.is_running:
+                return
             
         # Close all environments
         env_ids = list(self.env_to_service.keys())
@@ -455,7 +467,8 @@ def main(cfg: DictConfig):
         cfg: Configuration object from Hydra
     """
     # Create and start server with configuration
-    print(cfg)
+    env_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../env/Embench_new"))
+    sys.path.insert(0, env_dir)
     server = BatchEnvServer(cfg)
     print(f"Starting Batch Environment Server on http://{cfg.server.host}:{cfg.server.port}")
     server.start(background=False)

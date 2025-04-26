@@ -224,6 +224,8 @@ class SVGEnv(BaseEnv):
             "multi_modal_data": multi_modal_data,
         }
     
+    def set_dino_model(self, model):
+        self.dino_model = model
 
 if __name__ == "__main__":
     config = SvgEnvConfig()

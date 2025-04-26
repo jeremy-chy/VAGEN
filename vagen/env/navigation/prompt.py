@@ -4,6 +4,7 @@ Navigation Guide
 Goal: Achieve the human instruction
 
 Actions you can take: moveahead, moveback, moveright, moveleft, rotateright, rotateleft, lookup, lookdown. 
+You can take up to {max_actions_per_step} action(s) at a time.
 
 moveahead: Move forward by 0.25 meter
 moveback: Move backward by 0.25 meter
@@ -20,10 +21,10 @@ Achieve the human instruction: +10.0
 
 Please think step by step and provide the actions you want to take.
 
-You can take up to {max_actions_per_step} action(s) at a time, separated by {action_sep}. 
+You can provide a list of actions, separated by commas. 
 Your reponse should be in the format of <think>...</think><answer>...</answer>
 e.g.
-<think>I can see from the sight the target object is right in the top left of me, I will move forward, then move left to access it.</think><answer>moveahead{action_sep}moveahead{action_sep}moveahead{action_sep}moveahead{action_sep}moveahead{action_sep}moveleft{action_sep}moveleft</answer>
+<think>I can see from the sight the target object is right in the top left of me, I will move forward, then move left to access it.</think><answer>moveahead, moveahead,moveahead,moveahead,moveahead,moveleft,moveleft</answer>
 """
 
 system_prompt_vision = """You are a home robot and perform navigation tasks according to instructions.
