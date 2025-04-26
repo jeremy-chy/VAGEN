@@ -44,8 +44,8 @@ VAGEN addresses these challenges by focusing optimization on the most critical d
 - Enhanced environment framework for easier creation of custom environments
 - New service architecture for efficient distributed training
 - Check out our new guides:
-  - [Creating Environments](./docs/envs/create-env.md): New environment protocal.
-  - [Creating Services](./docs/envs/create-service.md): We now support hosting environments in a seperate process
+  - [Creating Environments](docs/create-env.md): New environment protocal.
+  - [Creating Services](docs/create-service.md): We now support hosting environments in a seperate process
 
 ## Installation
 
@@ -64,14 +64,8 @@ cd ../
 git clone https://github.com/RAGEN-AI/VAGEN.git
 cd VAGEN
 bash scripts/install.sh
-# This script installs dependencies for Frozenlake and Sokoban, for other environments, please refer to vagen/env/README.md and uncomment the registration in vagen/env/__init__.py
 ```
-
-
 ## Examples
-
-**Note:** VAGEN currently supports several environments: sokoban, frozenlake, svg, navigation, and primitive skill. 
-For simplifying installation and execution, we have **commented out** all environments except sokoban and frozenlake. If you wish to run other environments, please **uncomment** the corresponding sections in `scripts/install.sh` and `vagen/env/__init__.py`.
 ```
 # Login to wandb
 wandb login
@@ -92,7 +86,7 @@ bash vagen/examples/svg_trico/run.sh                # TRICO without service
 ```
 ## How to Add New Environment and Services
 
-See our [Creating Environments](./docs/envs/create-env.md) guide. You may also want to check our [Creating Service](./docs/envs/create-service.md) for scaling your environments.
+See our [Creating Environments](./docs/create-env.md) guide. You may also want to check our [Creating Service](./docs/create-service.md) for scaling your environments.
 
 ## How to Add New Model
 
@@ -134,6 +128,10 @@ We present several cases selected from validation steps during training models w
 # Project Roadmap
 - 🗓️ Mar 25, 2025: We release VAGEN, a multi-turn reinforcement learning framework for training VLM Agents!
 - [ ] Merge to RAGEN for better package mangement
+- [ ] Address training stability issues
+  - [ ] Lora Support
+  - [ ] Implement improved early stopping and gradient clipping strategies
+  - [ ] Reward normalization (refer to RAGEN)
 - [ ] Expand evaluation framework to more diverse visual environments
 - [ ] Scaling to larger models and applying TRICO to text-only tasks
 

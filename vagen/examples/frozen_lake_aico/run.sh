@@ -8,8 +8,8 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 python -m vagen.env.create_dataset \
     --yaml_path "$SCRIPT_DIR/env_config.yaml" \
-    --train_path "data/frozenlake-vision-debug/train.parquet" \
-    --test_path "data/frozenlake-vision-debug/test.parquet" \
+    --train_path "data/alfred_vagen/train.parquet" \
+    --test_path "data/alfred_vagen/test.parquet" \
 
 # max_trajectory_length = max_prompt_length + max_response_length
 

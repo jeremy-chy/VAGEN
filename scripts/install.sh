@@ -32,4 +32,13 @@ pip install 'gym-sokoban'
 # pip install 'gymnasium'
 # pip install "gymnasium[toy-text]"
 
-echo "Installation complete, to install dependencies for other environments, refer to env/readme!"
+echo "Installing Navigation dependencies"
+pip install ai2thor==5.0.0
+pip install numpy==1.25.1
+
+echo "Installing SVG dependencies"
+pip install "bs4"
+pip install "svgpathtools"
+pip install "cairosvg"
+
+echo "Installation complete!"
