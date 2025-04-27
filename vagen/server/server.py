@@ -202,7 +202,7 @@ class BatchEnvServer:
         """
         if env_name not in self.services: 
             service_class = get_service(env_name)
-            service_config = get_service_config(**self.config.get(env_name, {}))
+            service_config = get_service_config(env_name)
             self.services[env_name] = service_class(service_config)
                 
         return self.services[env_name]
