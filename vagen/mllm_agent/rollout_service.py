@@ -14,7 +14,7 @@ from verl.utils.model import compute_position_id_with_mask
 import verl.utils.torch_functional as verl_F
 from verl.utils.dataset.rl_dataset import process_image, collate_fn
 import vagen.env
-from vagen.env import REGISTERED_ENV
+from vagen.env import get_config
 from vagen.server.client import BatchEnvClient
     
 class QwenVLRolloutManagerService():
@@ -214,7 +214,7 @@ class QwenVLRolloutManagerService():
         configs_to_create=[]
         for i, cfg in enumerate(env_configs):
             # Create bucket key
-            config_instance= REGISTERED_ENV[cfg["env_name"]]["config_cls"](**cfg["env_config"])
+            config_instance= get_config(**cfg["env_config"])
             env_config_id = config_instance.config_id()
             bucket_key = env_config_id
             
@@ -245,7 +245,7 @@ class QwenVLRolloutManagerService():
             id_str = self.split+str(id)
             ids2configs_create[id_str] = cfg
             ids2seeds_reset[id_str] = cfg["seed"]
-            self.envs[id_str] = REGISTERED_ENV[cfg["env_name"]]["config_cls"](**cfg["env_config"])
+            self.envs[id_str] = get_config(**cfg["env_config"])
         self.env_client.create_environments_batch(ids2configs_create)
         # Step 5: Reset environments
         reset_results=self.env_client.reset_batch(ids2seeds_reset)

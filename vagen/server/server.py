@@ -4,7 +4,7 @@ import threading
 import time
 import importlib
 from typing import Dict, List, Tuple, Optional, Any, Type
-from vagen.env import REGISTERED_ENV
+from vagen.env import get_config, get_service, get_service_config, get_env, get_all_envs
 from vagen.env.base.base_service import BaseService
 from vagen.env.base.base_service_config import BaseServiceConfig
 import hydra
@@ -65,7 +65,7 @@ class BatchEnvServer:
             return jsonify({
                 "status": "ok",
                 "message": "Environment server is running",
-                "registered_envs": list(REGISTERED_ENV.keys()),
+                "registered_envs": get_all_envs(),
                 "active_services": list(self.services.keys()),
                 "active_environments": len(self.env_to_service)
             }), 200
@@ -200,17 +200,9 @@ class BatchEnvServer:
         Returns:
             Service instance for the environment type
         """
-        if env_name not in self.services:
-            # Check if environment is registered
-            if env_name not in REGISTERED_ENV:
-                raise ValueError(f"Unknown environment type: {env_name}")
-                
-            # Get the service class directly from REGISTERED_ENV
-            if "service_cls" not in REGISTERED_ENV[env_name]:
-                raise ValueError(f"No service class registered for environment type: {env_name}")
-                
-            service_class = REGISTERED_ENV[env_name]["service_cls"]
-            service_config = REGISTERED_ENV[env_name].get("service_config_cls", BaseServiceConfig)(**self.config.get(env_name, {}))
+        if env_name not in self.services: 
+            service_class = get_service(env_name)
+            service_config = get_service_config(**self.config.get(env_name, {}))
             self.services[env_name] = service_class(service_config)
                 
         return self.services[env_name]

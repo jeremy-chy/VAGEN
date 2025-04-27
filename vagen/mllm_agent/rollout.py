@@ -14,7 +14,7 @@ from verl.utils.model import compute_position_id_with_mask
 import verl.utils.torch_functional as verl_F
 from verl.utils.dataset.rl_dataset import process_image, collate_fn
 import vagen.env
-from vagen.env import REGISTERED_ENV
+from vagen.env import get_config, get_env
 
     
 class QwenVLRolloutManager():
@@ -213,7 +213,7 @@ class QwenVLRolloutManager():
             seed = cfg["seed"]
             
             # Create bucket key
-            config_instance= REGISTERED_ENV[env_name]["config_cls"](**env_config)
+            config_instance= get_config(env_name)(**env_config)
             env_config_id = config_instance.config_id()
             bucket_key = env_config_id
             
@@ -227,7 +227,7 @@ class QwenVLRolloutManager():
             else:
                 # don't initialize the environment here, close unused environments first
                 new_envs[env_id] = {
-                    "env_cls":REGISTERED_ENV[env_name]["env_cls"],
+                    "env_cls":get_env(env_name),
                     "seed":seed,
                     "config_instance":config_instance,
                 }
