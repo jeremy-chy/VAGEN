@@ -205,4 +205,4 @@ rollout_manager:
   base_url: http://chicago.huan-zhang.com:22220
   use_service: True
   timeout: 60
-  max_workers: 8
+  max_workers: 4
