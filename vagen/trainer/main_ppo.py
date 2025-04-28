@@ -135,7 +135,10 @@ def main_task(config, compute_score=None):
                             ray_worker_group_cls=ray_worker_group_cls,
                             reward_fn=reward_fn,
                             val_reward_fn=val_reward_fn)
+    print("[DEBUG] trainer initialized")
+    print(trainer.config)
     trainer.init_workers()
+    print("[DEBUG] workers initialized")
     trainer.fit()
 
 
