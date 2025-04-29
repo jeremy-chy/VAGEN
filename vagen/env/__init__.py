@@ -11,7 +11,12 @@ REGISTERED_ENV = {
         "env_cls": ".Embench_new:AlfredEnv",
         "service_cls": ".Embench_new:AlfredService",
         "config_cls": ".Embench_new:AlfredEnvConfig",
-    }
+    },
+    "frozenlake": {
+        "env_cls": ".frozenlake:FrozenLakeEnv",
+        "service_cls": ".frozenlake:FrozenLakeService",
+        "config_cls": ".frozenlake:FrozenLakeEnvConfig",
+    },
 }
 
 def load_class(path:str, package=__package__):
