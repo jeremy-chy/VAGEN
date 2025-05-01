@@ -2,10 +2,12 @@ defaults:
   - _self_
 
 server:
-  host: 127.0.0.1
-  port: 5000
+  host: http://chicago.huan-zhang.com
+  port: 22220
   debug: false
 
+alfred:
+  max_workers: 48
 frozenlake:
   max_workers: 48
 svg:

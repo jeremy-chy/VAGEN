@@ -1,0 +1,6 @@
+env1:
+    env_name: alfred
+    env_config:
+      env_name: alfred
+    train_size: 10000  
+    test_size: 512
