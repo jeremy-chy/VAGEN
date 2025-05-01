@@ -297,6 +297,7 @@ if __name__ == "__main__":
             # Get system prompts
             print("Getting system prompts...")
             prompts = client.get_system_prompts_batch(env_ids)
+            print(f"System prompts: {prompts}")
             
             # Step environments
             print("Stepping environments...")
@@ -305,6 +306,7 @@ if __name__ == "__main__":
                 env_ids[1]: "<|action_start|>[5,\'idk5\']<|action_end|>"
             }
             results = client.step_batch(ids2actions)
+            print(f"Step results: {results}")
             
             # Close environments
             print("Closing environments...")
