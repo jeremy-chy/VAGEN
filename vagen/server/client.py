@@ -263,7 +263,7 @@ class BatchEnvClient:
 
 if __name__ == "__main__":
     # Example usage of the client
-    client = BatchEnvClient(base_url="http://chicago.huan-zhang.com:22220", timeout=10)
+    client = BatchEnvClient(base_url="http://chicago.huan-zhang.com:22220", timeout=10000)
     
     # Wait for server to be available
     if client.wait_for_server():
