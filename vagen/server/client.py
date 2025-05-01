@@ -269,16 +269,16 @@ if __name__ == "__main__":
     if client.wait_for_server():
         try:
             # Create environments
-            configs = [
-                {
+            configs = {
+                '1': {
                     "env_name": "frozenlake",
                     "env_config": {"is_slippery": False, "size": 4, "render_mode": "text"}
                 },
-                {
+                '2': {
                     "env_name": "frozenlake",
                     "env_config": {"is_slippery": True, "size": 8, "render_mode": "vision"}
                 }
-            ]
+            }
             
             print("Creating environments...")
             env_ids = client.create_environments_batch(configs)
