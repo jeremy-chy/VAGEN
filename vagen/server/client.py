@@ -271,22 +271,27 @@ if __name__ == "__main__":
             # Create environments
             configs = {
                 '1': {
-                    "env_name": "frozenlake",
-                    "env_config": {"is_slippery": False, "size": 4, "render_mode": "text"}
+                    "env_name": "alfred",
+                    "env_config": {}
                 },
                 '2': {
-                    "env_name": "frozenlake",
-                    "env_config": {"is_slippery": True, "size": 8, "render_mode": "vision"}
-                }
+                    "env_name": "alfred",
+                    "env_config": {}
+                },
+                # # {
+                #     "env_name": "frozenlake",
+                #     "env_config": {"is_slippery": True, "size": 8, "render_mode": "vision"}
+                # }
             }
             
             print("Creating environments...")
-            env_ids = client.create_environments_batch(configs)
+            client.create_environments_batch(configs)
+            env_ids = list(configs.keys())
             print(f"Created {len(env_ids)} environments: {env_ids}")
             
             # Reset environments
             print("Resetting environments...")
-            ids2seeds = {env_id: i*42 for i, env_id in enumerate(env_ids)}
+            ids2seeds = {env_id: i+1 for i, env_id in enumerate(env_ids)}
             results = client.reset_batch(ids2seeds)
             
             # Get system prompts
@@ -296,8 +301,8 @@ if __name__ == "__main__":
             # Step environments
             print("Stepping environments...")
             ids2actions = {
-                env_ids[0]: "<think>Let me try going right first.</think><answer>Right</answer>",
-                env_ids[1]: "<think>I'll start by going down.</think><answer>Down</answer>"
+                env_ids[0]: "<|action_start|>[1,\'idk1\']<|action_end|>",
+                env_ids[1]: "<|action_start|>[5,\'idk5\']<|action_end|>"
             }
             results = client.step_batch(ids2actions)
             
