@@ -3,7 +3,7 @@ python3 -m vagen.trainer.main_ppo \
     algorithm.high_level_gamma=0.95 \
     data.train_files=data/alfred_vagen/train.parquet \
     data.val_files=data/alfred_vagen/test.parquet \
-    data.train_batch_size=4 \
+    data.train_batch_size=1 \
     data.max_prompt_length=1024 \
     data.max_response_length=128 \
     data.max_trajectory_length=1800 \
@@ -12,7 +12,7 @@ python3 -m vagen.trainer.main_ppo \
     actor_rollout_ref.model.path=Qwen/Qwen2.5-VL-3B-Instruct \
     actor_rollout_ref.actor.optim.lr=1e-6 \
     actor_rollout_ref.model.use_remove_padding=True \
-    actor_rollout_ref.actor.ppo_mini_batch_size=4\
+    actor_rollout_ref.actor.ppo_mini_batch_size=1\
     actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=1 \
     actor_rollout_ref.actor.use_kl_loss=False \
     actor_rollout_ref.actor.kl_loss_coef=0.001 \
