@@ -9,6 +9,7 @@ from vagen.env.Embench_new.alfred_env_for_vagen import AlfredEnv
 class AlfredService(BaseService):    
     def __init__(self, serviceconfig: None):
         self.envs = {}
+        self.max_workers = 1  # Default to 4 workers if not specified
         
     def create_environment(self, env_id: str, config: Dict[str, Any]) -> None:
         """
@@ -18,7 +19,8 @@ class AlfredService(BaseService):
             env_id (str): The environment ID.
             config (Dict[str, Any]): The configuration for the environment.
         """
-        self.envs[env_id] = AlfredEnv(**config)
+        # self.envs[env_id] = AlfredEnv(**config["env_config"])
+        self.envs[env_id] = AlfredEnv()
         # try:
         # self.envs[env_id] = AlfredEnv(**config)  # Create environment from config
         # except Exception as e:
@@ -166,7 +168,7 @@ class AlfredService(BaseService):
         return_dict = {}
         
         # Use ThreadPoolExecutor to step through environments concurrently
-        with ThreadPoolExecutor() as executor:
+        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             futures = []
             for env_id, action in ids2actions.items():
                 futures.append(executor.submit(self.step_environment, env_id, action))
