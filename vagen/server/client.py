@@ -281,7 +281,7 @@ if __name__ == "__main__":
             ]
             
             print("Creating environments...")
-            env_ids = client.create_environments_batchs(configs)
+            env_ids = client.create_environments_batch(configs)
             print(f"Created {len(env_ids)} environments: {env_ids}")
             
             # Reset environments
