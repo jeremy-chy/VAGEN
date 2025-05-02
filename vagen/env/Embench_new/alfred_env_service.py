@@ -252,7 +252,7 @@ class AlfredService(BaseService):
         
         try:
             system_prompt = self.envs[env_id].get_system_prompt()  # Assuming get_system_prompt is a method in AlfredEnv
-            return system_prompt
+            return env_id, system_prompt
         except Exception as e:
             print(f"Error retrieving system prompt for environment {env_id}: {e}")
             return ""  # Return empty string in case of error
@@ -278,9 +278,9 @@ class AlfredService(BaseService):
             
             for future in as_completed(futures):
                 try:
-                    result = future.result()  # Get result, raises exception if occurred
-                    if result is not None:
-                        return_dict[env_id] = result
+                    env_id, system_prompt = future.result()  # Get result, raises exception if occurred
+                    if system_prompt is not None:
+                        return_dict[env_id] = system_prompt
                 except Exception as e:
                     print(f"Error processing future for system prompt retrieval: {e}")
         

@@ -110,12 +110,17 @@ class EBAlfEnv(gym.Env):
         assert eval_set in ValidEvalSets, "eval set not founds"
         self._eval_set = eval_set
         self.down_sample_ratio = down_sample_ratio
-        self.dataset = self._load_dataset(eval_set)
-        if len(selected_indexes):
-            self.dataset = [self.dataset[i] for i in selected_indexes]
+
+        #### modified
+        # self.dataset = self._load_dataset(eval_set)
+        # if len(selected_indexes):
+        #     self.dataset = [self.dataset[i] for i in selected_indexes]
         
-        # Episode tracking
-        self.number_of_episodes = len(self.dataset)
+        # # Episode tracking
+        # self.number_of_episodes = len(self.dataset)
+        self.dataset = self._load_dataset()
+
+
         self._reset = False
         self._current_episode_num = 0
         self.selected_indexes = selected_indexes
@@ -213,13 +218,10 @@ class EBAlfEnv(gym.Env):
         self.name_to_id_dict = name_to_id_dict
         self.id_to_name_dict = id_to_name_dict
 
-    def _load_dataset(self, eval_set):
+    #### modified
+    def _load_dataset(self):
         with open(self.data_path) as f:
-            dataset_split = json.load(f)
-        dataset = dataset_split[eval_set]
-        if 0 <= self.down_sample_ratio < 1:
-            select_every = round(1 / self.down_sample_ratio)
-            dataset = dataset[0:len(dataset):select_every]
+            dataset = json.load(f)
         return dataset
 
 
@@ -271,17 +273,20 @@ class EBAlfEnv(gym.Env):
         Returns:
             observation
         """
-        if eval_set and eval_set != self._eval_set:
-            self._eval_set = eval_set
-            self.dataset = self._load_dataset(eval_set)
-            self.number_of_episodes = len(self.dataset)
-            self._current_episode_num = 0
-            if not len(self.dataset):
-                raise ValueError("No episodes available in the selected dataset.")
-        if episode_num:
-            self._current_episode_num = episode_num
-        assert self._current_episode_num < self.number_of_episodes
-        self._reset_controller(self.dataset[self._current_episode_num])
+        # if eval_set and eval_set != self._eval_set:
+        #     self._eval_set = eval_set
+        #     self.dataset = self._load_dataset(eval_set)
+        #     self.number_of_episodes = len(self.dataset)
+        #     self._current_episode_num = 0
+        #     if not len(self.dataset):
+        #         raise ValueError("No episodes available in the selected dataset.")
+        # if episode_num:
+        #     self._current_episode_num = episode_num
+        
+        #### modified
+        assert episode_num < len(self.dataset[eval_set])
+        self._reset_controller(self.dataset[eval_set][episode_num])
+
         self._current_step = 0
         self._cur_invalid_actions = 0
         self._current_episode_num += 1

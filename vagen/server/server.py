@@ -78,6 +78,9 @@ class BatchEnvServer:
                 return jsonify({"error": "Missing required parameter: ids2configs"}), 400
                     
             ids2configs = data['ids2configs']
+            print("#########################")
+            print(f"Creating batch")
+            print("#########################")
             self._create_environments_batch(ids2configs)
             return jsonify({"success": True}), 200
         
@@ -89,6 +92,9 @@ class BatchEnvServer:
                 return jsonify({"error": "Missing required parameter: ids2seeds"}), 400
                 
             ids2seeds = data['ids2seeds']
+            print("#########################")
+            print(f"Resetting batch")
+            print("#########################")
             results = self._reset_batch(ids2seeds)
             return jsonify({"results": results}), 200
                 
@@ -133,6 +139,9 @@ class BatchEnvServer:
                 return jsonify({"error": "Missing required parameter: env_ids"}), 400
                 
             env_ids = data['env_ids']
+            print("#########################")
+            print(f"Closing batch")
+            print("#########################")
             self._close_batch(env_ids)
             return jsonify({"status": "success"}), 200
         
@@ -258,6 +267,9 @@ class BatchEnvServer:
         # Call create_environments_batch method on each service
         for env_name, configs in service_to_configs.items():
             service = self.services[env_name]
+            print("#########################")
+            print(f"Creating environments: {configs}")
+            print("#########################")
             service.create_environments_batch(configs)
     
     
@@ -383,6 +395,9 @@ class BatchEnvServer:
 
         # Close environments through respective services
         for env_name, (service, group_env_ids) in service_groups.items():
+            print("#########################")
+            print(f"Closing environments: {group_env_ids}")
+            print("#########################")
             service.close_batch(group_env_ids)
     
     def _generate_env_id(self) -> str:
