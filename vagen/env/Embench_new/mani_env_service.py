@@ -3,12 +3,12 @@ from typing import List, Dict, Tuple, Optional, Any, Union
 import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from vagen.env.base.base_service import BaseService
-from vagen.env.Embench_new.alfred_env_for_vagen import AlfredEnv
+from vagen.env.Embench_new.mani_env import EBManipulationEnv
 
 from vagen.server.serial import serialize_observation
 
 
-class AlfredService(BaseService):    
+class EBManipulationService(BaseService):    
     def __init__(self, serviceconfig: None):
         self.envs = {}
         self.max_workers = 4  # Default to 4 workers if not specified
@@ -22,7 +22,7 @@ class AlfredService(BaseService):
             config (Dict[str, Any]): The configuration for the environment.
         """
         # self.envs[env_id] = AlfredEnv(**config["env_config"])
-        self.envs[env_id] = AlfredEnv()
+        self.envs[env_id] = EBManipulationEnv()
         # try:
         # self.envs[env_id] = AlfredEnv(**config)  # Create environment from config
         # except Exception as e:

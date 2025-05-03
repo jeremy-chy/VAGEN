@@ -12,6 +12,11 @@ REGISTERED_ENV = {
         "service_cls": ".Embench_new:AlfredService",
         "config_cls": ".Embench_new:AlfredEnvConfig",
     },
+    "eb-manipulation": {
+        "env_cls": ".Embench_new:EBManipulationEnv",
+        "service_cls": ".Embench_new:EBManipulationService",
+        "config_cls": ".Embench_new:EBManipulationEnvConfig",
+    },
     "frozenlake": {
         "env_cls": ".frozenlake:FrozenLakeEnv",
         "service_cls": ".frozenlake:FrozenLakeService",

@@ -76,13 +76,13 @@ def seed_to_config(seed):
 class AlfredEnv(BaseEnv):
     def __init__(self, *args, **kwargs):
         super(AlfredEnv, self).__init__()
-        self.env = EBAlfEnv(resolution=300, *args, **kwargs)
+        self.env = EBAlfEnv(resolution=500, *args, **kwargs)
         self.system_prompt = ""
         # self.renew_system_prompt()
         self.all_steps_history = []
         self.instruction = self.env.episode_language_instruction
         self.total_reward = 0
-        self.gamma = 1
+        self.gamma = 0.9
         
     def get_system_prompt(self):
         return alfred_system_prompt.format(len(self.env.language_skill_set)-1, self.env.language_skill_set)
@@ -99,6 +99,8 @@ class AlfredEnv(BaseEnv):
             reward += 1
         if info["task_success"]:
             reward += 20
+
+        self.total_reward = self.total_reward * self.gamma + reward
 
         step_history_entry = {
             "step_id": info['env_step'],
@@ -143,16 +145,8 @@ class AlfredEnv(BaseEnv):
         
     def reset(self, seed):
 
-        print("--------------------------------")
-        print("start reset Env")
-        print("--------------------------------")   
-
         eval_set, episode_id = seed_to_config(seed)
         image = Image.fromarray(self.env.reset(eval_set, episode_id)['head_rgb'])
-        
-        print("--------------------------------")
-        print(type(image))
-        print("--------------------------------")
 
         # self.renew_system_prompt()
         self.all_steps_history = []
@@ -174,7 +168,9 @@ class AlfredEnv(BaseEnv):
                 "task_progress": 0,
                 "task_success": False,
             },
-            "traj_metrics": {}
+            "traj_metrics": {
+                "task_success": False,
+            }
         }
 
         info = {
