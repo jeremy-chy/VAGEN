@@ -5,6 +5,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from vagen.env.base.base_service import BaseService
 from vagen.env.Embench_new.alfred_env_for_vagen import AlfredEnv
 
+from vagen.server.serial import serialize_observation
+
 
 class AlfredService(BaseService):    
     def __init__(self, serviceconfig: None):
@@ -87,10 +89,15 @@ class AlfredService(BaseService):
         
         try:
             # Reset the environment and return the result
-            return self.envs[env_id].reset(seed)
+            print("--------------------------------")
+            print("start reset")
+            print("--------------------------------")
+            observation, info = self.envs[env_id].reset(seed)
+            observation = serialize_observation(observation)
+            return env_id, (observation, info)
         except Exception as e:
             print(f"Error resetting environment {env_id}: {e}")
-            return None  # Handle the error gracefully here, e.g., return None or a default value
+            return env_id, None  # Handle the error gracefully here, e.g., return None or a default value
     
     def reset_batch(self, ids2seeds: Dict[str, Any]) -> Dict[str, Tuple[Any, Any]]:
         """
@@ -106,6 +113,9 @@ class AlfredService(BaseService):
                 A dictionary mapping environment IDs to tuples of the form (observation, info),
                 where 'observation' is the initial state after reset, and 'info' contains additional details.
         """
+        print("--------------------------------")
+        print("start reset batch")
+        print("--------------------------------")
         return_dict = {}
         
         # Use ThreadPoolExecutor to reset environments concurrently
@@ -116,7 +126,7 @@ class AlfredService(BaseService):
             
             for future in as_completed(futures):
                 try:
-                    result = future.result()  # Get result, raises exception if occurred
+                    env_id, result = future.result()  # Get result, raises exception if occurred
                     if result is not None:
                         return_dict[env_id] = result
                 except Exception as e:
@@ -135,17 +145,23 @@ class AlfredService(BaseService):
         Returns:
             Tuple[Dict, float, bool, Dict]: A tuple (observation, reward, done, info) after taking the step.
         """
+        print("--------------------------------")
+        print(f"action: {action}")
+        print("--------------------------------")
         if env_id not in self.envs:
             raise ValueError(f"Environment {env_id} not found.")
+
         observation, reward, done, info = self.envs[env_id].step(action)
-        return observation, reward, done, info
+        observation = serialize_observation(observation)
+        return env_id, (observation, reward, done, info)
         # try:
         #     # Step through the environment and return the result
         #     observation, reward, done, info = self.envs[env_id].step(action)
-        #     return observation, reward, done, info
+        #     observation = serialize_observation(observation)
+        #     return env_id, (observation, reward, done, info)
         # except Exception as e:
         #     print(f"Error stepping environment {env_id}: {e}")
-        #     return None, 0.0, False, {}  # Return default values in case of error
+        #     return env_id, None  # Return default values in case of error
     
     def step_batch(self, ids2actions: Dict[str, Any]) -> Dict[str, Tuple[Dict, float, bool, Dict]]:
         """
@@ -175,16 +191,12 @@ class AlfredService(BaseService):
             
             # Collect results as they complete
             for future in as_completed(futures):
-                result = future.result()  # Get result, raises exception if occurred
-                if result[0] is not None:  # Ensure observation is valid
-                    return_dict[env_id] = result
-                # try:
-                #     result = future.result()  # Get result, raises exception if occurred
-                #     print(f"result: {result}")
-                #     if result[0] is not None:  # Ensure observation is valid
-                #         return_dict[env_id] = result
-                # except Exception as e:
-                #     print(f"Error processing future for step: {e}")
+                try:
+                    env_id, result = future.result()  # Get result, raises exception if occurred
+                    if result[0] is not None:  # Ensure observation is valid
+                        return_dict[env_id] = result
+                except Exception as e:
+                    print(f"Error processing future for step: {e}")
         
         return return_dict
 
@@ -255,7 +267,7 @@ class AlfredService(BaseService):
             return env_id, system_prompt
         except Exception as e:
             print(f"Error retrieving system prompt for environment {env_id}: {e}")
-            return ""  # Return empty string in case of error
+            return env_id, ""  # Return empty string in case of error
     
     def get_system_prompts_batch(self, env_ids: List[str]) -> Dict[str, str]:
         """

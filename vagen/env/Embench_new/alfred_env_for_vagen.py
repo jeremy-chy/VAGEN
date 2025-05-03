@@ -3,6 +3,7 @@ from vagen.env.Embench_new.embodiedbench.envs.eb_alfred.EBAlfEnv import EBAlfEnv
 # from vagen.env.Embench_new.prompt_utils_alfred import get_system_prompt
 import json
 import re
+from PIL import Image
 
 alfred_system_prompt = '''## You are a robot operating in a home. Given a task, you must accomplish the task using a defined set of actions to achieve the desired outcome.
 
@@ -40,22 +41,31 @@ alfred_system_prompt = '''## You are a robot operating in a home. Given a task, 
 #     return None, None, None
 
 def output_to_action(output_text):
+
     # Extract raw string between think_start and think_end
     think_match = re.search(r"<\|think_start\|\>(.*?)<\|think_end\|\>", output_text, re.DOTALL)
-    think_text = think_match.group(1).strip() if think_match else "[No think block found]"
+    if think_match:
+        think_format_correct = True
+        think_text = think_match.group(1).strip()
+    else:
+        think_format_correct = False
+        think_text = "[No think block found]"   
 
     # Extract the first action
     action_match = re.search(r"<\|action_start\|\>\[(\d+),\s*(.*?)\]<\|action_end\|\>", output_text, re.DOTALL)
     # action_match = re.search(r"<\|action_start\|\>(.*?)<\|action_end\|\>", output_text, re.DOTALL)
     if action_match:
-        action_index = int(action_match.group(1))         # 提取数字 1
-        action_detail = action_match.group(2).strip()     # 提取 "pick up"
+        action_format_correct = True
+        action_index = int(action_match.group(1))
+        action_detail = action_match.group(2).strip()     
         action_content = f"[{action_index}, {action_detail}]"
     else:
-        action_index = None
+        action_format_correct = False
+        action_index = 1
         action_detail = ""
         action_content = "[No action block found]"
-    return action_index, action_content, think_text
+
+    return action_index, action_content, think_text, think_format_correct and action_format_correct
 
 def seed_to_config(seed):
     if isinstance(seed, str):
@@ -66,21 +76,30 @@ def seed_to_config(seed):
 class AlfredEnv(BaseEnv):
     def __init__(self, *args, **kwargs):
         super(AlfredEnv, self).__init__()
-        self.env = EBAlfEnv(*args, **kwargs)
+        self.env = EBAlfEnv(resolution=300, *args, **kwargs)
         self.system_prompt = ""
-        self.renew_system_prompt()
+        # self.renew_system_prompt()
         self.all_steps_history = []
         self.instruction = self.env.episode_language_instruction
         self.total_reward = 0
         self.gamma = 1
         
     def get_system_prompt(self):
-        return alfred_system_prompt.format(len(self.env.action_space)-1, self.env.language_skill_set)
+        return alfred_system_prompt.format(len(self.env.language_skill_set)-1, self.env.language_skill_set)
         
     def step(self, llm_raw_response):
-        action_id, action_content, thinking = output_to_action(llm_raw_response)
+
+        action_id, action_content, thinking, format_correct = output_to_action(llm_raw_response)
+
         obs, reward, done, info = self.env.step(action_id)
-        # self.total_reward += reward * self.gamma ** (info['env_step']-1) #do we need discount here
+
+        # TODO: calculate reward
+        reward = 0
+        if format_correct:
+            reward += 1
+        if info["task_success"]:
+            reward += 20
+
         step_history_entry = {
             "step_id": info['env_step'],
             "thinking": thinking,
@@ -94,11 +113,17 @@ class AlfredEnv(BaseEnv):
                         "interaction_history: " + json.dumps(interaction_history, indent=2) + " \n " +
                         "Based on the above information, please provide the action for the next step to complete the task. Think, then act."
                     )
-        image = obs['head_rgb']
-        metrics = {}
-        #     "episode_elapsed_seconds": info['episode_elapsed_seconds'],
-        #     "last_action_success": info['last_action_success']
-        # }
+
+        image = Image.fromarray(obs['head_rgb'])
+        metrics = {
+            "turn_metrics": {
+                "task_progress": info["task_progress"],
+                "task_success": info["task_success"],
+            },
+            "traj_metrics": {
+                "task_success": info["task_success"],
+            }
+        }
         obs = {
             "obs_str": user_prompt,
             "multi_modal_data": {
@@ -110,6 +135,7 @@ class AlfredEnv(BaseEnv):
             "llm_raw_response": llm_raw_response
             # "llm_response": "" #Not using it currently, but we follow the original format to avoid errors
         }
+
         return obs, reward, done, info
         
     def close(self):
@@ -117,10 +143,18 @@ class AlfredEnv(BaseEnv):
         
     def reset(self, seed):
 
-        eval_set, episode_id = seed_to_config(seed)
-        image = self.env.reset(eval_set, episode_id)['head_rgb']
+        print("--------------------------------")
+        print("start reset Env")
+        print("--------------------------------")   
 
-        self.renew_system_prompt()
+        eval_set, episode_id = seed_to_config(seed)
+        image = Image.fromarray(self.env.reset(eval_set, episode_id)['head_rgb'])
+        
+        print("--------------------------------")
+        print(type(image))
+        print("--------------------------------")
+
+        # self.renew_system_prompt()
         self.all_steps_history = []
         self.instruction = self.env.episode_language_instruction
         self.total_reward = 0
@@ -136,9 +170,13 @@ class AlfredEnv(BaseEnv):
             }
         }
         metrics = {
-            "episode_elapsed_seconds": 0,
-            "last_action_success": None
+            "turn_metrics": {
+                "task_progress": 0,
+                "task_success": False,
+            },
+            "traj_metrics": {}
         }
+
         info = {
             "metrics": metrics,
             "llm_raw_response": None,
@@ -146,8 +184,8 @@ class AlfredEnv(BaseEnv):
         }
         return obs, info
     
-    # def system_prompt(self):
-    #     return self.system_prompt
+    def system_prompt(self):
+        return self.system_prompt
     
     def compute_reward(self):
         return self.total_reward

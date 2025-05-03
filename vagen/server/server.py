@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from flask.json import JSONEncoder
+# from flask.json import JSONEncoder
 import threading
 import time
 import importlib
@@ -12,13 +12,13 @@ from omegaconf import DictConfig
 import os, sys
 import numpy as np
 
-class NumpyEncoder(JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.ndarray):
-            # Convert the array to a (nested) Python list
-            return obj.tolist()
-        # Let the base class default method raise the TypeError
-        return super().default(obj)
+# class NumpyEncoder(JSONEncoder):
+#     def default(self, obj):
+#         if isinstance(obj, np.ndarray):
+#             # Convert the array to a (nested) Python list
+#             return obj.tolist()
+#         # Let the base class default method raise the TypeError
+#         return super().default(obj)
 
 class BatchEnvServer:
     """
@@ -49,7 +49,7 @@ class BatchEnvServer:
         
         # Create Flask app
         self.app = Flask(__name__)
-        self.app.json_encoder = NumpyEncoder
+        # self.app.json_encoder = NumpyEncoder
         self._setup_routes()
         
         # Server state
